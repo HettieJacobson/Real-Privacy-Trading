@@ -1,0 +1,23 @@
+contracts/
+test/
+deploy/
+scripts/
+artifacts/
+cache/
+coverage/
+.solcover.js
+tsconfig.json
+hardhat.config.ts
+.solhint.json
+.eslintrc.json
+.eslintignore
+CLAUDE.md
+DEPLOYMENT_GUIDE.md
+HELLO_FHEVM_TUTORIAL.md
+CLEANUP_GUIDE.md
+SUBMISSION_CHECKLIST.md
+FINAL_STATUS.md
+VIDEO_SCRIPT.md
+DIALOGUE.md
+Live\ Evidence.png
+PrivacyAssetTrading.mp4
