@@ -1,0 +1,28 @@
+{
+  "extends": "solhint:recommended",
+  "rules": {
+    "code-complexity": [
+      "warning",
+      25
+    ],
+    "contract-name-camelcase": "off",
+    "expression-indent": "off",
+    "func-name-mixedcase": "off",
+    "func-order": "off",
+    "indent": "off",
+    "max-line-length": [
+      "warning",
+      120
+    ],
+    "no-empty-blocks": "off",
+    "no-inline-assembly": "off",
+    "payable-no-empty-body": "off",
+    "reason-string": [
+      "warning",
+      {
+        "maxLength": 64
+      }
+    ],
+    "var-name-mixedcase": "off"
+  }
+}
