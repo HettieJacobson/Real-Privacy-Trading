@@ -1,0 +1,30 @@
+# Ignore all Hardhat development files for Vercel
+contracts/
+test/
+deploy/
+scripts/
+artifacts/
+cache/
+coverage/
+.solcover.js
+hardhat.config.ts
+tsconfig.json
+src/
+.env.example
+CLAUDE.md
+DEPLOYMENT_GUIDE.md
+HELLO_FHEVM_TUTORIAL.md
+CLEANUP_GUIDE.md
+SUBMISSION_CHECKLIST.md
+VIDEO_SCRIPT.md
+DIALOGUE.md
+.solhint.json
+.eslintrc.json
+.eslintignore
+
+# Keep only
+public/
+README.md
+LICENSE
+package.json
+vercel.json
