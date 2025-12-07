@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+artifacts
+cache
+.hardhat
+coverage
+types
+*.config.js
+**/*.d.ts
