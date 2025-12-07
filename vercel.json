@@ -3,13 +3,6 @@
   "buildCommand": "npm run build:vercel || exit 0",
   "outputDirectory": "public",
   "public": true,
-  "framework": "other",
-  "functions": {
-    "api/**/*.js": {
-      "memory": 1024,
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
