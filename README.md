@@ -2,6 +2,10 @@
 
 A privacy-preserving decentralized trading platform demonstrating key Fully Homomorphic Encryption (FHEVM) concepts: **encrypted state variables**, **private computation**, **access control patterns**, and **confidential transactions** using Zama's FHEVM technology.
 
+[Video Real Privacy Trading.mp4](https://streamable.com/obs2en)
+
+[Live Demo](https://real-privacytrading.vercel.app/)
+
 ## 📋 FHEVM Concepts Demonstrated
 
 This standalone FHEVM example repository showcases:
