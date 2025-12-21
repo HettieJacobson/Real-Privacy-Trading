@@ -24,6 +24,55 @@ interface ExampleConfig {
 }
 
 const EXAMPLES_CONFIG: Record<string, ExampleConfig> = {
+  "fhe-counter": {
+    name: "fhe-counter",
+    title: "FHE Counter",
+    description: "Simple encrypted counter demonstrating basic FHE operations",
+    concepts: ["Encrypted state", "FHE.add", "FHE.sub", "Permission management"],
+    difficulty: "beginner",
+  },
+  "encrypt-single-value": {
+    name: "encrypt-single-value",
+    title: "Encrypt Single Value",
+    description: "Demonstrates FHE encryption mechanism and common pitfalls",
+    concepts: ["Input proofs", "Encryption", "Permission system", "Common mistakes"],
+    difficulty: "beginner",
+  },
+  "encrypt-multiple-values": {
+    name: "encrypt-multiple-values",
+    title: "Encrypt Multiple Values",
+    description: "Shows how to encrypt and handle multiple values in a single transaction",
+    concepts: ["Batch encryption", "Multiple values", "Permission management"],
+    difficulty: "beginner",
+  },
+  "user-decrypt-single-value": {
+    name: "user-decrypt-single-value",
+    title: "User Decrypt Single Value",
+    description: "Demonstrates user decryption and permission requirements",
+    concepts: ["User decryption", "View functions", "Access control", "Permissions"],
+    difficulty: "beginner",
+  },
+  "user-decrypt-multiple-values": {
+    name: "user-decrypt-multiple-values",
+    title: "User Decrypt Multiple Values",
+    description: "Shows how to decrypt multiple encrypted values for a user",
+    concepts: ["Batch decryption", "Multiple values", "Access control", "Selective access"],
+    difficulty: "intermediate",
+  },
+  "fhe-arithmetic": {
+    name: "fhe-arithmetic",
+    title: "FHE Arithmetic Operations",
+    description: "Demonstrates arithmetic operations on encrypted values",
+    concepts: ["FHE.add", "FHE.sub", "FHE.mul", "Chaining operations"],
+    difficulty: "intermediate",
+  },
+  "access-control": {
+    name: "access-control",
+    title: "Access Control with FHE",
+    description: "Demonstrates access control patterns with encrypted values",
+    concepts: ["FHE.allow", "FHE.allowThis", "FHE.allowTransient", "Role-based access"],
+    difficulty: "intermediate",
+  },
   "real-privacy-trading": {
     name: "real-privacy-trading",
     title: "Real Privacy Trading",
@@ -34,14 +83,7 @@ const EXAMPLES_CONFIG: Record<string, ExampleConfig> = {
       "Access control patterns",
       "Confidential transactions",
     ],
-    difficulty: "intermediate",
-  },
-  "fhe-counter": {
-    name: "fhe-counter",
-    title: "FHE Counter",
-    description: "Simple encrypted counter demonstrating basic FHE operations",
-    concepts: ["Encrypted state", "FHE.add", "FHE.sub"],
-    difficulty: "beginner",
+    difficulty: "advanced",
   },
 };
 
