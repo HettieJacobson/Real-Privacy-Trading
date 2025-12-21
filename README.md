@@ -1,567 +1,555 @@
-# Privacy-Preserving Corporate Governance - FHEVM Example
+# FHEVM Privacy Trading Examples
 
-A fully homomorphic encryption (FHE) powered board resolution and voting system demonstrating advanced FHEVM concepts including encrypted state management, input proofs, homomorphic operations, access control, and gateway-based decryption.
+A comprehensive FHEVM Example Hub demonstrating privacy-preserving smart contracts using Fully Homomorphic Encryption. This repository contains standalone, Hardhat-based FHEVM example repositories with clean tests, automated scaffolding, and self-contained documentation.
 
-## 📋 Overview
+## 🎯 Project Overview
 
-This FHEVM example demonstrates a **confidential corporate governance system** where:
-- Board members cast **completely private votes** using FHE encryption
-- Individual votes remain encrypted throughout the process and are never revealed
-- Vote tallies are computed **homomorphically** without ever decrypting intermediate values
-- Only **final results are revealed** when voting concludes
-- **Complete audit trail** maintained on-chain for transparency
+This project provides a complete system for building and understanding privacy-preserving decentralized finance (DeFi) applications using FHEVM by Zama. It includes:
 
-**Live Demo**: https://fhe-corporate-governance.vercel.app/
-
-**Demo Video Privacy-Preserving Corporate Governance.mp4**:https://youtu.be/fKCiVvMl8SE
-
-**Contract Address (Sepolia)**: `0x13116d08546b78F5fDB7fA4544f778885B19A441`
-
-## ✨ Key FHEVM Concepts Demonstrated
-
-### 1. **Encrypted State Management** (chapter: encryption)
-```solidity
-// Private vote counters remain encrypted throughout voting period
-euint32 yesVotes;   // Encrypted yes vote tally
-euint32 noVotes;    // Encrypted no vote tally
-```
-**Concept**: Sensitive data stored as encrypted types and never decrypted until final results
-
----
-
-### 2. **Input Encryption & Proof Validation** (chapter: input-proofs)
-```solidity
-function castVote(
-    uint256 _resolutionId,
-    einput _encryptedVote,      // User-encrypted vote
-    bytes calldata inputProof    // Zero-knowledge proof
-) external {
-    // Verify and convert encrypted input
-    ebool vote = TFHE.asEbool(_encryptedVote, inputProof);
-    // ...
-}
-```
-**Concept**: Secure input encryption with cryptographic proof validation
-
-**Common Pitfall**: ❌ Missing or invalid input proof validation
-```solidity
-// ❌ DON'T: No proof validation
-ebool vote = TFHE.asEbool(_encryptedVote, new bytes(0));
-
-// ✅ DO: Always validate proof
-ebool vote = TFHE.asEbool(_encryptedVote, inputProof);
-```
-
----
-
-### 3. **Homomorphic Operations** (chapter: fhe-operations)
-```solidity
-// Add voting power to appropriate counter (homomorphically)
-euint32 votingPower = TFHE.asEuint32(boardMembers[msg.sender].votingPower);
-
-// Encrypted conditional addition - core FHE operation
-resolution.yesVotes = TFHE.add(
-    resolution.yesVotes,
-    TFHE.select(vote, votingPower, TFHE.asEuint32(0))  // IF vote THEN add power ELSE 0
-);
-```
-**Concept**: Perform operations on encrypted data without decryption
-- `TFHE.add()` - Homomorphic addition
-- `TFHE.select()` - Encrypted conditional (if-else)
-- All operations preserve encryption
-
----
-
-### 4. **Access Control with FHE** (chapter: access-control)
-```solidity
-modifier onlyBoardMember() {
-    require(boardMembers[msg.sender].isActive, "Only active board members");
-    _;
-}
-
-// Only authorized members can vote
-function castVote(...) external onlyBoardMember {
-    // Encrypted operations within access-controlled functions
-    FHE.allowThis(encryptedValue);        // Grant contract permission
-    FHE.allow(encryptedValue, msg.sender); // Grant user permission
-}
-```
-**Concept**: Combine traditional access control with FHE permission system
-- Contract permissions: `FHE.allowThis()`
-- User permissions: `FHE.allow(address, user)`
-
-**Common Pitfall**: ❌ Missing permission grants
-```solidity
-// ❌ DON'T: Only grant one permission
-FHE.allow(encryptedValue, msg.sender);  // Missing allowThis()
-
-// ✅ DO: Grant both permissions
-FHE.allowThis(encryptedValue);
-FHE.allow(encryptedValue, msg.sender);
-```
-
----
-
-### 5. **Gateway-Based Decryption** (chapter: decryption)
-```solidity
-function closeResolution(uint256 _resolutionId) external {
-    // Request async decryption of final results
-    uint256[] memory cts = new uint256[](2);
-    cts[0] = Gateway.toUint256(resolution.yesVotes);
-    cts[1] = Gateway.toUint256(resolution.noVotes);
-
-    Gateway.requestDecryption(
-        cts,
-        this.resolveResolution.selector,  // Callback function
-        0,
-        block.timestamp + 100,
-        false
-    );
-}
-
-// Gateway calls callback with decrypted results
-function resolveResolution(uint256, uint256[] memory decryptedVotes)
-    public onlyGateway {
-    uint256 yesVotes = decryptedVotes[0];
-    uint256 noVotes = decryptedVotes[1];
-    bool passed = yesVotes > noVotes;
-    emit ResolutionClosed(0, passed);
-}
-```
-**Concept**: Asynchronous decryption pattern
-1. Request decryption of final results
-2. Gateway decrypts and calls callback
-3. Process results with full transparency
-
----
+- **Base Template**: A complete, ready-to-use Hardhat setup for FHEVM development
+- **Example Contracts**: Categorized collection of FHEVM examples from basic to advanced
+- **Automation Tools**: TypeScript-based CLI tools for generating standalone repositories
+- **Documentation Generator**: Tools to create GitBook-compatible documentation
+- **Comprehensive Tests**: Test suites demonstrating correct usage and common pitfalls
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-```bash
-Node.js >= 18.0.0
-npm >= 8.0.0
-Git
-```
 
-### Installation & Setup
+- **Node.js**: Version 20 or higher
+- **npm**: Version 7 or higher
+- Basic Solidity and JavaScript knowledge
+
+### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/DamarisSchulist/CorporateGovernance.git
-cd CorporateGovernance
+git clone <repository-url>
+cd RealPrivacyTrading
 
 # Install dependencies
 npm install
 
-# Configure environment
-cp .env.example .env
-# Add your PRIVATE_KEY and INFURA_PROJECT_ID
+# Verify installation
+npm run compile
 ```
 
-### Compile & Test
+### Running Tests
 
 ```bash
-# Compile Solidity contracts
-npx hardhat compile
+# Run all tests
+npm run test
 
-# Run test suite
-npx hardhat test
+# Run with coverage report
+npm run coverage
 
-# Run tests with gas reporting
-REPORT_GAS=true npx hardhat test
-
-# Generate coverage report
-npx hardhat coverage
+# Run linting checks
+npm run lint
 ```
 
-### Deploy
+### Generate Examples
 
 ```bash
-# Deploy to Sepolia testnet
-npx hardhat run scripts/deploy-corporate-governance.js --network sepolia
+# Generate a standalone example repository
+npm run create-example real-privacy-trading ./test-output/my-trading-example
 
-# Verify contract on Etherscan
-npx hardhat verify --network sepolia <CONTRACT_ADDRESS>
-```
+# Generate a category project with multiple examples
+npm run create-category trading ./test-output/trading-examples
 
-### Run Locally
-
-```bash
-# Start local FHEVM-ready node
-npx hardhat node
-
-# Deploy to local network (in another terminal)
-npx hardhat run scripts/deploy-corporate-governance.js --network localhost
+# Generate documentation
+npm run generate-docs real-privacy-trading
+npm run generate-all-docs
 ```
 
 ## 📁 Project Structure
 
 ```
-corporate-governance/
-├── contracts/                              # Smart contracts
-│   ├── CorporateGovernance.sol            # Main FHE implementation
-│   ├── SimpleCorporateGovernance.sol      # Non-FHE version for comparison
-│   ├── SimpleBoardResolution.sol          # Simplified example
-│   └── UltraSimpleVoting.sol             # Minimal voting demo
-├── test/                                  # Test suite
-│   └── CorporateGovernance.ts            # Comprehensive tests
-├── scripts/
-│   └── deploy-corporate-governance.js     # Deployment script
-├── frontend/                              # Web interface
-│   ├── index.html
-│   ├── package.json
-│   └── server.js
-├── docs/                                  # Documentation
-│   ├── fhe-counter.md                    # FHE concepts
-│   └── SUMMARY.md                        # GitBook index
-├── hardhat.config.ts                     # Hardhat configuration
-├── package.json
-└── README.md
+RealPrivacyTrading/
+├── fhevm-hardhat-template/          # Base Hardhat template
+│   ├── contracts/
+│   ├── test/
+│   ├── deploy/
+│   ├── hardhat.config.ts
+│   └── package.json
+│
+├── contracts/                        # All example contracts
+│   ├── basic/                       # Basic FHE operations
+│   │   └── FHECounter.sol           # Simple encrypted counter
+│   │
+│   └── trading/                     # Privacy-preserving trading
+│       ├── RealPrivacyTrading.sol   # Full trading platform
+│       └── PrivacyAssetTrading.sol  # Alternative implementation
+│
+├── test/                            # Comprehensive test suites
+│   ├── basic/                       # Tests for basic examples
+│   └── trading/                     # Tests for trading contracts
+│
+├── scripts/                         # Automation tools
+│   ├── create-fhevm-example.ts      # Single example generator
+│   ├── create-fhevm-category.ts     # Category project generator
+│   ├── generate-docs.ts              # Documentation generator
+│   └── README.md                     # Scripts documentation
+│
+├── examples/                        # Generated documentation
+│   ├── README.md                    # Documentation index
+│   └── *.md                         # Individual example docs
+│
+├── package.json                     # Project configuration
+├── hardhat.config.ts                # Hardhat configuration
+├── tsconfig.json                    # TypeScript configuration
+└── README.md                        # This file
 ```
 
-## 🔍 Example Walkthrough
+## 📚 Available Examples
 
-### Creating a Resolution
+### Basic Examples
 
-```javascript
-// Resolution creator specifies voting parameters
-const tx = await contract.createResolution(
-    "Approve Q4 Budget",
-    "Resolution to approve quarterly budget allocation",
-    5  // Required quorum (sum of voting power needed to pass)
-);
-await tx.wait();
+#### **FHE Counter** (`fhe-counter`)
+A simple encrypted counter demonstrating basic FHEVM operations.
+
+**Concepts:**
+- Encrypted state variables
+- FHE addition and subtraction
+- Input proofs and verification
+- Permission management
+
+**Quick Start:**
+```bash
+npm run create-example fhe-counter ./test-output/counter
+cd test-output/counter
+npm install && npm run compile && npm run test
 ```
 
-### Casting an Encrypted Vote
+### Advanced Examples
 
-```typescript
-// 1. User encrypts their vote client-side
-const encryptedInput = await fhevm
-    .createEncryptedInput(contractAddress, userAddress)
-    .add1(1)  // 1 = yes vote, 0 = no vote
-    .encrypt();
+#### **Real Privacy Trading** (`real-privacy-trading`)
+A complete privacy-preserving decentralized trading platform.
 
-// 2. Submit encrypted vote to contract
-const tx = await contract.castVote(
-    resolutionId,
-    encryptedInput.handles[0],
-    encryptedInput.inputProof,
-    { gasLimit: 500000 }
-);
-await tx.wait();
+**Concepts:**
+- Encrypted order management
+- Private portfolio tracking
+- Confidential trade execution
+- Access control patterns
 
-// 3. Individual vote remains encrypted on-chain
-// Other board members cannot see how you voted
+**Features:**
+- Place encrypted orders with hidden amounts and prices
+- Track portfolios in encrypted form
+- Execute trades without revealing transaction details
+- User-specific decryption permissions
+
+**Quick Start:**
+```bash
+npm run create-example real-privacy-trading ./test-output/trading
+cd test-output/trading
+npm install && npm run compile && npm run test
 ```
 
-### Closing Resolution & Revealing Results
+## 🔧 Automation Scripts
 
-```typescript
-// After voting period ends, close the resolution
-const tx = await contract.closeResolution(resolutionId);
-await tx.wait();
+### Create FHEVM Example
 
-// Gateway decrypts final tallies and calls resolveResolution()
-// Only final yes/no counts are revealed, never individual votes
-contract.on('ResolutionClosed', (resolutionId, passed) => {
-    console.log(`Resolution ${resolutionId} ${passed ? 'PASSED' : 'FAILED'}`);
-});
+Generates standalone FHEVM example repositories.
+
+```bash
+npm run create-example <example-name> <output-path>
 ```
 
-## 📚 Core Concepts Explanation
+**Examples:**
+```bash
+npm run create-example fhe-counter ./examples/counter
+npm run create-example real-privacy-trading ./examples/trading
 
-### FHE Encryption Binding
-
-FHEVM uses **encryption binding** where values are bound to `[contract, user]` pairs:
-
-```
-Before submitting to contract:
-┌─────────────────────────────┐
-│ User's Local Environment    │
-│ • User has private key      │
-│ • FHE encrypts vote         │
-│ • Creates proof of binding  │
-└──────────┬──────────────────┘
-           │ Submit (encrypted)
-           ▼
-┌─────────────────────────────┐
-│ Smart Contract              │
-│ • Verify binding proof      │
-│ • Process encrypted vote    │
-│ • Add to encrypted tally    │
-└─────────────────────────────┘
+# List available examples
+npm run list-examples
+npm run help:create
 ```
 
-### Vote Processing Flow
+### Create FHEVM Category
 
-```
-1. User selects vote (YES/NO)
-   ↓
-2. Client encrypts vote with FHE
-   ↓
-3. Creates zero-knowledge proof
-   ↓
-4. Submits encrypted vote + proof to contract
-   ↓
-5. Contract verifies proof signature
-   ↓
-6. Contract converts to encrypted boolean: ebool vote
-   ↓
-7. Homomorphic addition: yesVotes += vote ? votingPower : 0
-   ↓
-8. Vote stored encrypted on-chain
-   ↓
-9. After voting period:
-   - Request decryption of final tallies
-   - Gateway decrypts results
-   - Contract processes final outcome
-   - Individual votes never decrypted!
+Generates projects with multiple related examples.
+
+```bash
+npm run create-category <category-name> <output-path>
 ```
 
-## ⚙️ Configuration & Gas Costs
+**Available Categories:**
+- **basic** - Foundational FHEVM operations
+- **trading** - Privacy-preserving trading examples
 
-### Gas Optimization
+**Examples:**
+```bash
+npm run create-category basic ./examples/basic-set
+npm run create-category trading ./examples/trading-set
 
-FHE operations are computationally expensive. This contract optimizes by:
+# List available categories
+npm run list-categories
+npm run help:category
+```
+
+### Generate Documentation
+
+Creates GitBook-compatible documentation.
+
+```bash
+# Generate docs for specific example
+npm run generate-docs <example-name>
+
+# Generate docs for all examples
+npm run generate-all-docs
+
+# Show help
+npm run help:docs
+```
+
+**Examples:**
+```bash
+npm run generate-docs fhe-counter
+npm run generate-docs real-privacy-trading
+npm run generate-all-docs
+```
+
+## 🔐 FHEVM Concepts
+
+### Encryption Binding
+
+Every encrypted value in FHEVM is bound to a `[contract, user]` pair:
+- **Contract Address**: The contract where encryption occurred
+- **User Address**: The wallet that performed the encryption
+
+This ensures encrypted values cannot be used in different contexts without authorization.
+
+### Critical Pattern: Permission System
 
 ```solidity
-// ✅ GOOD: Single conditional FHE operation
-resolution.yesVotes = TFHE.add(
-    resolution.yesVotes,
-    TFHE.select(vote, votingPower, TFHE.asEuint32(0))
-);
-
-// ❌ BAD: Multiple separate FHE operations
-if (TFHE.decrypt(vote)) {
-    resolution.yesVotes = TFHE.add(resolution.yesVotes, votingPower);
-} else {
-    resolution.noVotes = TFHE.add(resolution.noVotes, votingPower);
-}
+// ✅ ALWAYS grant both permissions
+euint32 value = FHE.fromExternal(externalValue, proof);
+FHE.allowThis(value);           // Contract permission
+FHE.allow(value, msg.sender);   // User permission
 ```
 
-### Typical Gas Costs
-- Create resolution: ~200,000 gas
-- Cast vote: ~400,000 gas
-- Close resolution: ~150,000 gas
-- Decrypt callback: ~100,000 gas
+### Access Control
 
-## 🔒 Security Analysis
-
-### Privacy Guarantees
-
-✅ **What's Private:**
-- Individual votes encrypted at submission
-- Never decrypted during voting period
-- Even contract creator cannot see individual votes
-- FHE operations preserve encryption throughout
-
-✅ **What's Public:**
-- Resolution details (title, description, timing)
-- Board member identities and voting power
-- Final yes/no vote counts (only after closure)
-- All transactions recorded on-chain
-
-### Common Pitfalls & Solutions
-
-**❌ Pitfall 1: Missing Input Proof Validation**
 ```solidity
-// DON'T do this:
-ebool vote = TFHE.asEbool(_encryptedVote, new bytes(0));
-
-// DO this instead:
-ebool vote = TFHE.asEbool(_encryptedVote, inputProof);
-```
-
-**❌ Pitfall 2: Decrypting in View Functions**
-```solidity
-// DON'T expose encrypted data in view functions:
-function getEncryptedVotes() external view returns (euint32) {
-    return resolution.yesVotes;  // ❌ Never decrypt here
-}
-
-// DO only decrypt in gateway callbacks:
-function resolveResolution(uint256, uint256[] memory decryptedVotes)
-    public onlyGateway {
-    // ✅ Safe to process decrypted results here
-}
-```
-
-**❌ Pitfall 3: Forgetting Permission Grants**
-```solidity
-// DON'T: Only grant user permission
-FHE.allow(encryptedValue, msg.sender);
-
-// DO: Grant both contract and user permissions
+// ✅ CORRECT: Grant contract access
 FHE.allowThis(encryptedValue);
+
+// ✅ CORRECT: Grant user decryption access
 FHE.allow(encryptedValue, msg.sender);
+
+// ❌ WRONG: Missing FHE.allowThis()
+FHE.allow(encryptedValue, msg.sender);  // Fails without allowThis!
 ```
 
-**❌ Pitfall 4: Vote Timing Issues**
-```solidity
-// DON'T: Allow votes after period ends
-require(block.timestamp <= resolution.endTime, "Voting period ended");
+### Input Proofs
 
-// DO: Enforce strict voting window
-require(block.timestamp >= resolution.startTime, "Voting not started");
-require(block.timestamp <= resolution.endTime, "Voting period ended");
+Zero-knowledge proofs verify:
+1. Input was encrypted with correct binding
+2. User has control of private key
+3. No tampering or relaying
+
+```typescript
+// ✅ CORRECT: Create encrypted input with correct signer
+const enc = await fhevm.createEncryptedInput(contractAddr, alice.address)
+    .add32(123).encrypt();
+await contract.connect(alice).operate(enc.handles[0], enc.inputProof);
+
+// ❌ WRONG: Mismatched signer
+const enc = await fhevm.createEncryptedInput(contractAddr, alice.address)
+    .add32(123).encrypt();
+await contract.connect(bob).operate(enc.handles[0], enc.inputProof);  // Fails!
 ```
 
 ## 🧪 Testing Strategy
 
-### Unit Tests
-- ✅ Resolution creation with valid/invalid quorum
-- ✅ Board member addition and removal
-- ✅ Encrypted vote submission and validation
-- ✅ Vote tallying with different voting powers
-- ✅ Decryption callback handling
-- ✅ Access control enforcement
-- ✅ Time-based voting restrictions
+### Test Structure
 
-### Integration Tests
-- ✅ Complete voting workflow end-to-end
-- ✅ Multiple board members voting sequence
-- ✅ Gateway interaction for decryption
-- ✅ Event emission verification
-- ✅ State transitions (pending → voting → closed)
-
-### Edge Cases Covered
-- ❌ Non-board-members cannot vote
-- ❌ Cannot vote after period ends
-- ❌ Cannot vote twice on same resolution
-- ❌ Invalid quorum values rejected
-- ❌ Missing access control blocks operations
-
-## 🎯 Real-World Use Cases
-
-### Corporate Governance
-- Board of directors voting on strategic decisions
-- Executive compensation approvals
-- Merger and acquisition votes
-- Policy change ratifications
-
-### Organizational Decision Making
-- Committee confidential voting
-- Shareholder resolutions
-- Multi-signature approvals with privacy
-- Confidential personnel decisions
-
-### Compliance & Regulation
-- Regulatory-compliant private voting
-- Audit committee decisions with confidentiality
-- Whistleblower voting systems
-- Confidential risk assessments
-
-## 📊 Advanced Features
-
-### Weighted Voting
-```solidity
-// Board members have different voting power based on role/shareholding
-struct BoardMember {
-    bool isActive;
-    uint256 votingPower;  // Different power per member
-    string name;
-    string position;
-}
-
-// Voting power included in encrypted calculation:
-euint32 votingPower = TFHE.asEuint32(boardMembers[msg.sender].votingPower);
-resolution.yesVotes = TFHE.add(
-    resolution.yesVotes,
-    TFHE.select(vote, votingPower, TFHE.asEuint32(0))
-);
+```bash
+test/
+├── basic/
+│   ├── FHECounter.ts          # Tests for basic counter
+│   └── *.ts                    # Other basic tests
+│
+└── trading/
+    ├── RealPrivacyTrading.ts   # Tests for trading contract
+    └── *.ts                    # Other trading tests
 ```
 
-### Flexible Quorum
-```solidity
-// Each resolution can have different quorum requirements
-function createResolution(
-    string memory _title,
-    string memory _description,
-    uint256 _requiredQuorum  // Custom per resolution
-) external {
-    require(_requiredQuorum <= totalVotingPower, "Quorum exceeds voting power");
-    // ...
+### Running Tests
+
+```bash
+# Run all tests
+npm run test
+
+# Run specific test file
+npm run test -- test/trading/RealPrivacyTrading.ts
+
+# Run with detailed output
+npm run test -- --reporter tap
+
+# Run with coverage
+npm run coverage
+```
+
+### Test Categories
+
+Each example includes:
+
+**✅ Success Cases**
+- Proper FHE permission granting
+- Encrypted value operations
+- User-specific decryption
+- Complex transactions
+
+**❌ Failure Cases & Pitfalls**
+- Missing FHE.allowThis() permission
+- Incorrect permission scoping
+- Missing input validation
+- Unauthorized access attempts
+
+## 📖 Code Quality Standards
+
+### Solidity Contracts
+
+```bash
+# Lint Solidity files
+npm run lint:sol
+
+# Format code
+npm run prettier:write
+
+# Generate coverage report
+npm run coverage
+```
+
+### TypeScript Scripts
+
+```bash
+# Lint TypeScript files
+npm run lint:ts
+
+# Check code formatting
+npm run prettier:check
+```
+
+### Full Quality Check
+
+```bash
+npm run lint
+```
+
+## 🏗️ Architecture
+
+### Contract Design Pattern
+
+```
+┌─────────────────────────────────┐
+│   FHEVM Contract Layer          │
+├─────────────────────────────────┤
+│  Encrypted State Variables      │
+│  (euint32, euint64, etc.)       │
+├─────────────────────────────────┤
+│  FHE Operations                 │
+│  (FHE.add, FHE.sub, FHE.eq)     │
+├─────────────────────────────────┤
+│  Permission Management          │
+│  (FHE.allowThis, FHE.allow)     │
+├─────────────────────────────────┤
+│  Access Control Checks          │
+│  (require, permission guards)    │
+└─────────────────────────────────┘
+```
+
+### Development Workflow
+
+1. **Write Contract** - Create in `contracts/<category>/`
+2. **Write Tests** - Create in `test/<category>/`
+3. **Generate Docs** - Use generation scripts
+4. **Test Standalone** - Verify example repository works
+5. **Update README** - Document new example
+
+## 🚀 Deployment
+
+### Deploy to Sepolia Testnet
+
+```bash
+# 1. Configure environment
+npx hardhat vars set MNEMONIC
+npx hardhat vars set INFURA_API_KEY
+
+# 2. Deploy contract
+npm run deploy:sepolia
+
+# 3. Verify on Etherscan
+npm run verify:sepolia -- <CONTRACT_ADDRESS>
+```
+
+### Deploy Generated Example
+
+```bash
+# Generate example
+npm run create-example fhe-counter ./my-counter
+
+# Deploy
+cd my-counter
+npm install
+npm run deploy:sepolia
+```
+
+## 📊 Key Dependencies
+
+```json
+{
+  "@fhevm/solidity": "^0.9.1",         // FHEVM Solidity library
+  "@fhevm/hardhat-plugin": "^0.3.0-1", // Hardhat plugin with mock
+  "@zama-fhe/relayer-sdk": "^0.3.0-5", // Decryption relayer
+  "hardhat": "^2.26.0",                 // Development environment
+  "typescript": "^5.8.3"                // Type safety
 }
 ```
 
-### Time-Bound Voting
-```solidity
-uint256 public constant VOTING_DURATION = 7 days;
+## 🔮 Use Cases
 
-function createResolution(...) external {
-    Resolution storage resolution = resolutions[resolutionId];
-    resolution.startTime = block.timestamp;
-    resolution.endTime = block.timestamp + VOTING_DURATION;
-}
+### Individual Traders
+- **Private Trading**: Hide strategy and position sizes
+- **Front-Running Prevention**: Encrypted amounts prevent MEV
+- **Anonymous Participation**: Trade without identity exposure
 
-function castVote(...) external {
-    require(block.timestamp <= resolution.endTime, "Voting period has ended");
-    // ...
-}
-```
+### Institutional Users
+- **Regulatory Compliance**: Privacy for sensitive data
+- **Competitive Protection**: Keep algorithms confidential
+- **Institutional-Grade Privacy**: Enterprise confidentiality
 
-## 📖 Documentation
+### Privacy Advocates
+- **Financial Privacy**: Exercise rights without surveillance
+- **Data Sovereignty**: Full control over financial data
+- **Decentralized Privacy**: DeFi with true confidentiality
 
-- **README.md** - This file
-- **QUICK_START.md** - 5-minute setup guide
-- **HELLO_FHEVM_TUTORIAL.md** - Complete beginner tutorial
-- **VIDEO_SCRIPT.md** - 60-second demo video script
-- **VIDEO_DIALOGUE.md** - Voiceover transcript
-- **COMPETITION_SUBMISSION.md** - Bounty submission summary
+## ⚠️ Security Considerations
 
-## 🔗 Links & Resources
+### What is Encrypted
+✅ Trading volumes and amounts
+✅ Order prices and limits
+✅ Portfolio balances
+✅ Transaction details
+
+### What is Transparent
+❌ Contract address (deployed)
+❌ Transaction timestamps
+❌ Number of transactions
+❌ User addresses (without decryption)
+
+### Security Best Practices
+
+1. **Always grant both permissions**
+   ```solidity
+   FHE.allowThis(value);
+   FHE.allow(value, user);
+   ```
+
+2. **Validate all encrypted inputs**
+   - Check input proofs
+   - Verify user signatures
+   - Validate input ranges
+
+3. **Use proper error handling**
+   - Require statements
+   - Custom error messages
+   - Permission checks
+
+4. **Test edge cases**
+   - Boundary values
+   - Overflow/underflow
+   - Permission violations
+
+## 📚 Learning Resources
 
 ### FHEVM Documentation
-- **Official Docs**: https://docs.zama.ai/fhevm
-- **API Reference**: https://docs.zama.ai/fhevm/fundamentals/types
-- **GitHub**: https://github.com/zama-ai/fhevm
-
-### This Project
-- **Live Demo**: https://fhe-corporate-governance.vercel.app/
-- **GitHub**: https://github.com/DamarisSchulist/CorporateGovernance
-- **Contract (Sepolia)**: https://sepolia.etherscan.io/address/0x13116d08546b78F5fDB7fA4544f778885B19A441
+- [FHEVM Official Documentation](https://docs.zama.ai/fhevm)
+- [FHEVM Hardhat Plugin](https://docs.zama.ai/protocol/solidity-guides/development-guide/hardhat)
+- [FHE Concepts Guide](https://docs.zama.ai/fhevm/fundamentals/fhe-concepts)
 
 ### Development Tools
-- **Hardhat**: https://hardhat.org
-- **Ethers.js**: https://docs.ethers.org
-- **FHEVM Hardhat Plugin**: https://www.npmjs.com/package/@fhevm/hardhat-plugin
+- [Hardhat Documentation](https://hardhat.org/docs)
+- [Solidity Programming Guide](https://docs.soliditylang.org/)
+- [Ethers.js Documentation](https://docs.ethers.org/v6/)
+
+### Privacy & Cryptography
+- [Fully Homomorphic Encryption Basics](https://www.zama.ai/post/what-is-fully-homomorphic-encryption-fhe)
+- [Zero-Knowledge Proofs](https://ethereum.org/en/zero-knowledge-proofs/)
+- [Privacy in Smart Contracts](https://blog.ethereum.org/2023/10/25/applying-cryptography-to-privacy)
 
 ## 🤝 Contributing
 
-Contributions welcome! Please:
+Contributions are welcome! When adding examples:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/improvement`)
-3. Add tests for new functionality
-4. Ensure all tests pass (`npm run test`)
-5. Submit a pull request
+1. **Follow naming conventions**
+   - Kebab-case for example names: `my-privacy-example`
+   - PascalCase for contracts: `MyPrivacyExample`
+   - camelCase for functions: `myFunction()`
+
+2. **Include comprehensive documentation**
+   - JSDoc comments for all public functions
+   - Explain FHEVM-specific patterns
+   - Document common pitfalls
+
+3. **Write thorough tests**
+   - Test both success and failure cases
+   - Use descriptive test names
+   - Include integration tests
+
+4. **Update automation scripts**
+   - Add to `EXAMPLES_CONFIG` in `create-fhevm-example.ts`
+   - Add to `DOCS_CONFIG` in `generate-docs.ts`
+   - Add to `CATEGORIES_CONFIG` in `create-fhevm-category.ts`
+
+5. **Test generated repositories**
+   ```bash
+   npm run create-example your-example ./test-output
+   cd test-output
+   npm install && npm run compile && npm run test
+   ```
 
 ## 📝 License
 
-BSD-3-Clause-Clear License - See LICENSE file for details
+BSD-3-Clause-Clear License
 
-## 🙏 Acknowledgments
+See LICENSE file for details.
 
-Built with [FHEVM](https://www.zama.ai/fhevm) by Zama - bringing fully homomorphic encryption to smart contracts.
+## 🎯 Bounty Program
+
+**Program**: FHEVM Example Repository Challenge
+**Prize Pool**: $10,000 USD
+**Submission Deadline**: December 31, 2025 (23:59 UTC)
+**Network**: Sepolia Testnet (FHEVM enabled)
+
+### Deliverables Met
+
+✅ Independent Hardhat-based examples
+✅ Demonstrates clear FHEVM concepts
+✅ Comprehensive test suite
+✅ Automated scaffolding capability
+✅ GitBook-compatible documentation
+✅ Developer guide and maintenance tools
+✅ Multiple example categories
+✅ Standalone repository generation
+
+## 📞 Support & Contact
+
+- **GitHub Issues**: Report bugs and request features
+- **Zama Discord**: Community support and discussions
+- **Documentation**: Full FHEVM guides and tutorials
+- **Email**: For partnership inquiries
+
+## 🔗 References
+
+- [Zama GitHub](https://github.com/zama-ai)
+- [Zama Website](https://www.zama.ai)
+- [FHEVM Repository](https://github.com/zama-ai/fhevm)
+- [Hardhat Template](https://github.com/zama-ai/fhevm-hardhat-template)
+- [OpenZeppelin Confidential](https://github.com/OpenZeppelin/openzeppelin-confidential-contracts)
 
 ---
 
-## 📊 Example Tags (for GitBook)
+**Built for the Zama FHEVM Example Repository Bounty Program - December 2025**
 
-- **chapter: access-control** - Access control implementation
-- **chapter: encryption** - Encrypted state management
-- **chapter: fhe-operations** - Homomorphic operations
-- **chapter: input-proofs** - Input proof validation
-- **chapter: decryption** - Gateway decryption patterns
-- **chapter: governance** - Governance use cases
-- **chapter: privacy** - Privacy guarantees
-
-**Difficulty Level**: Intermediate-Advanced
-**FHEVM Version**: 0.4.x compatible
-**Solidity Version**: ^0.8.24
-
----
-
-**Built with ❤️ using [FHEVM](https://www.zama.ai/fhevm) by Zama**
+**Privacy-Preserving Finance with Fully Homomorphic Encryption**
