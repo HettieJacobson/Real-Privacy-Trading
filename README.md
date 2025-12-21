@@ -2,6 +2,10 @@
 
 A comprehensive FHEVM Example Hub demonstrating privacy-preserving smart contracts using Fully Homomorphic Encryption. This repository contains standalone, Hardhat-based FHEVM example repositories with clean tests, automated scaffolding, and self-contained documentation.
 
+[Video](https://youtu.be/VSFhg4Up8WM)
+
+[Live Demo](https://real-privacytrading.vercel.app/)
+
 ## 🎯 Project Overview
 
 This project provides a complete system for building and understanding privacy-preserving decentralized finance (DeFi) applications using FHEVM by Zama. It includes:
